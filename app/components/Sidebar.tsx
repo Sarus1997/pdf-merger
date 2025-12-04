@@ -11,7 +11,6 @@ interface Props {
 export default function Sidebar({ open, onClose }: Props) {
   const menuItems = [
     { href: "/", label: "Home", icon: "🏠" },
-    { href: "/merge", label: "Merge PDF", icon: "📄" },
     { href: "/history", label: "History", icon: "🕒" },
     { href: "/setting", label: "Settings", icon: "⚙️" },
   ];
