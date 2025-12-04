@@ -1,3 +1,5 @@
+"use client";
+
 import { PDFDocument } from "pdf-lib";
 
 export async function mergePDFs(files: File[]): Promise<Blob> {
@@ -12,5 +14,7 @@ export async function mergePDFs(files: File[]): Promise<Blob> {
   }
 
   const mergedBytes = await mergedPdf.save();
-  return new Blob([mergedBytes], { type: "application/pdf" });
+
+  // ✔ แก้ TypeScript issue ตอน build
+  return new Blob([mergedBytes.buffer], { type: "application/pdf" });
 }
