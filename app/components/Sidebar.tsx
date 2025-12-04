@@ -6,13 +6,15 @@ import "./sidebar.scss";
 interface Props {
   open: boolean;
   onClose: () => void;
+  language: "en" | "th";
+  onChangeLanguage: () => void;
 }
 
-export default function Sidebar({ open, onClose }: Props) {
+export default function Sidebar({ open, onClose, language, onChangeLanguage }: Props) {
   const menuItems = [
-    { href: "/", label: "Home", icon: "🏠" },
-    { href: "/history", label: "History", icon: "🕒" },
-    { href: "/setting", label: "Settings", icon: "⚙️" },
+    { href: "/", label: language === "en" ? "Home" : "หน้าแรก", icon: "🏠" },
+    { href: "/history", label: language === "en" ? "History" : "ประวัติ", icon: "🕒" },
+    { href: "/setting", label: language === "en" ? "Settings" : "ตั้งค่า", icon: "⚙️" },
   ];
 
   return (
@@ -20,7 +22,7 @@ export default function Sidebar({ open, onClose }: Props) {
       <div className={`sidebar-wrapper ${open ? "open" : ""}`}>
         <div className="sidebar">
           <div className="sidebar-header">
-            <h2 className="sidebar-title">Menu</h2>
+            <h2 className="sidebar-title">{language === "en" ? "Menu" : "เมนู"}</h2>
             <button className="close-btn" onClick={onClose} aria-label="Close menu">
               ✕
             </button>
@@ -43,19 +45,17 @@ export default function Sidebar({ open, onClose }: Props) {
           </ul>
 
           <div className="sidebar-footer">
+            <button className="lang-btn" onClick={onChangeLanguage}>
+              🌐 {language === "en" ? "English" : "ภาษาไทย"}
+            </button>
+
             <p>PDF Merger Pro</p>
             <small>Version 1.0.0</small>
           </div>
         </div>
       </div>
 
-      {/* Overlay */}
-      {open && (
-        <div
-          className="sidebar-overlay"
-          onClick={onClose}
-        />
-      )}
+      {open && <div className="sidebar-overlay" onClick={onClose} />}
     </>
   );
 }

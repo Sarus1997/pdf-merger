@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-section">
-          <h3>PDF Merger</h3>
+          <h3>PDF EDITOR</h3>
           <p>The easiest way to merge your PDF files</p>
         </div>
 
