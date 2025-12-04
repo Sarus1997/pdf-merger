@@ -15,11 +15,5 @@ export async function mergePDFs(files: File[]): Promise<Blob> {
 
   const mergedBytes = await mergedPdf.save();
 
-  // 🔥 แปลง Uint8Array -> ArrayBuffer แบบปลอดภัย 100%
-  const arrayBuffer = mergedBytes.buffer.slice(
-    mergedBytes.byteOffset,
-    mergedBytes.byteOffset + mergedBytes.byteLength
-  );
-
-  return new Blob([arrayBuffer], { type: "application/pdf" });
+  return new Blob([mergedBytes], { type: "application/pdf" });
 }
