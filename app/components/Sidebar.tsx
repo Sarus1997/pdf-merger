@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
@@ -14,8 +15,10 @@ export default function Sidebar({ open, onClose }: Props) {
 
   const menuItems = [
     { href: "/", label: lang === "en" ? "Home" : "หน้าแรก", icon: "🏠" },
-    { href: "/history", label: lang === "en" ? "History" : "ประวัติ", icon: "🕒" },
-    { href: "/setting", label: lang === "en" ? "Settings" : "ตั้งค่า", icon: "⚙️" },
+    { href: "/about", label: lang === "en" ? "About" : "เกี่ยวกับ", icon: "👤" },
+    { href: "/contact", label: lang === "en" ? "Contact" : "ติดต่อ", icon: "📞" },
+    // { href: "/history", label: lang === "en" ? "History" : "ประวัติ", icon: "🕒" },
+    // { href: "/setting", label: lang === "en" ? "Settings" : "ตั้งค่า", icon: "⚙️" },
   ];
 
   return (
@@ -42,15 +45,22 @@ export default function Sidebar({ open, onClose }: Props) {
           </ul>
 
           {/* LANGUAGE BUTTON */}
+          {/* LANGUAGE BUTTON */}
           <div className="language-container">
             <button className="lang-btn" onClick={toggleLang}>
-              🌐 {lang === "en" ? "English" : "ภาษาไทย"}
+              <img
+                src={lang === "en" ? "/img/flag/england.svg" : "/img/flag/thailand.svg"}
+                alt={lang === "en" ? "English" : "ไทย"}
+                style={{ width: "24px", height: "24px", marginRight: "8px" }}
+              />
+              {lang === "en" ? "English" : "ภาษาไทย"}
             </button>
           </div>
 
+
           {/* FOOTER */}
           <footer className="sidebar-footer">
-            <p>{lang === "en" ? "Developed by ⚒️ Sarus" : "พัฒนาโดย ⚒️ ซารุส"}</p>
+            <p>{lang === "en" ? "Developed by ⚒️ ITD TEAM" : "พัฒนาโดย ⚒️ ITD TEAM"}</p>
             <small>Version 1.1.1</small>
           </footer>
         </aside>
