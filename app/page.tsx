@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileEdit, Scissors, FileDown } from "lucide-react";
+import { FileEdit, Scissors, FileDown, FileUp, FileSearch, FileText } from "lucide-react";
 import { useLanguage } from "./contexts/LanguageContext";
 import "./HomePage.scss";
 
@@ -15,7 +15,9 @@ export default function HomePage() {
       </h1>
 
       <p className="subtitle">
-        {lang === "en" ? "Choose a tool to get started" : "เลือกเครื่องมือที่ต้องการใช้งาน"}
+        {lang === "en"
+          ? "Choose a tool to get started"
+          : "เลือกเครื่องมือที่ต้องการใช้งาน"}
       </p>
 
       <div className="tool-grid">
@@ -34,16 +36,6 @@ export default function HomePage() {
           </p>
         </Link>
 
-        {/* Split PDF */}
-        <div className="tool-card disabled">
-          <div className="icon-wrapper">
-            <Scissors size={48} />
-          </div>
-          <h2 className="tool-title">
-            {lang === "en" ? "Split PDF (coming soon)" : "แยก PDF (กำลังพัฒนา)"}
-          </h2>
-        </div>
-
         {/* Compress PDF */}
         <Link href="/compress" className="tool-card">
           <div className="icon-wrapper">
@@ -58,6 +50,56 @@ export default function HomePage() {
               : "ลดขนาดไฟล์ PDF ของคุณ"}
           </p>
         </Link>
+
+        {/* Split PDF */}
+        <div className="tool-card disabled">
+          <div className="icon-wrapper">
+            <Scissors size={48} />
+          </div>
+          <h2 className="tool-title">
+            {lang === "en" ? "Split PDF (coming soon)" : "แยก PDF (กำลังพัฒนา)"}
+          </h2>
+        </div>
+
+        {/* Extract Text */}
+        <div className="tool-card disabled">
+          <div className="icon-wrapper">
+            <FileText size={48} />
+          </div>
+          <h2 className="tool-title">
+            {lang === "en" ? "Extract Text (coming soon)" : "แยกข้อความ (กำลังพัฒนา)"}
+          </h2>
+        </div>
+
+        {/* PDF to Images */}
+        <div className="tool-card disabled">
+          <div className="icon-wrapper">
+            <FileUp size={48} />
+          </div>
+          <h2 className="tool-title">
+            {lang === "en" ? "PDF to Images (coming soon)" : "แปลง PDF เป็นรูปภาพ (กำลังพัฒนา)"}
+          </h2>
+        </div>
+
+        {/* Search in PDF */}
+        <div className="tool-card disabled">
+          <div className="icon-wrapper">
+            <FileSearch size={48} />
+          </div>
+          <h2 className="tool-title">
+            {lang === "en" ? "Search in PDF (coming soon)" : "ค้นหาใน PDF (กำลังพัฒนา)"}
+          </h2>
+        </div>
+
+        {/* Edit PDF */}
+        <div className="tool-card disabled">
+          <div className="icon-wrapper">
+            <FileEdit size={48} />
+          </div>
+          <h2 className="tool-title">
+            {lang === "en" ? "Edit PDF (coming soon)" : "แก้ไข PDF (กำลังพัฒนา)"}
+          </h2>
+        </div>
       </div>
     </div>
   );
