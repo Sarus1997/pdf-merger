@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 "use client";
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useCallback } from "react";
@@ -23,7 +24,8 @@ const PdfViewer = forwardRef<PdfViewerHandle, Props>(({
 }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfRef = useRef<PDFDocumentProxy | null>(null);
-  const renderTimeoutRef = useRef<NodeJS.Timeout>();
+  const renderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const isMountedRef = useRef(true);
 
   useImperativeHandle(ref, () => ({
