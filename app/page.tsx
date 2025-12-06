@@ -52,14 +52,19 @@ export default function HomePage() {
         </Link>
 
         {/* Edit PDF */}
-        <div className="tool-card disabled">
+        <Link href="/editor" className="tool-card">
           <div className="icon-wrapper">
-            <FileEdit size={48} />
+            <FileDown size={48} />
           </div>
           <h2 className="tool-title">
-            {lang === "en" ? "Edit PDF (coming soon)" : "แก้ไข PDF (กำลังพัฒนา)"}
+            {lang === "en" ? "Edit PDF" : "แก้ไข PDF"}
           </h2>
-        </div>
+          <p className="tool-desc">
+            {lang === "en"
+              ? "Modify your PDF files easily"
+              : "แก้ไขไฟล์ PDF ของคุณได้อย่างง่ายดาย"}
+          </p>
+        </Link>
 
         {/* Split PDF */}
         <div className="tool-card disabled">
