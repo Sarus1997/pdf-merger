@@ -1,7 +1,13 @@
 /* eslint-disable react-hooks/immutability */
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useCallback } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useCallback,
+} from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/build/pdf.worker.min";
 import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
@@ -19,155 +25,124 @@ interface Props {
   onPageRender: (size: { width: number; height: number }) => void;
 }
 
-const PdfViewer = forwardRef<PdfViewerHandle, Props>(({
-  url, pageNumber, scale, rotation, onDocumentLoad, onPageRender
-}, ref) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const pdfRef = useRef<PDFDocumentProxy | null>(null);
-  const renderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+const PdfViewer = forwardRef<PdfViewerHandle, Props>(
+  ({ url, pageNumber, scale, rotation, onDocumentLoad, onPageRender }, ref) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const pdfRef = useRef<PDFDocumentProxy | null>(null);
+    const renderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const isMountedRef = useRef(true);
+    const isMountedRef = useRef(true);
 
-  useImperativeHandle(ref, () => ({
-    goToPage(page: number) {
-      render(page);
-    }
-  }));
+    /** Expose method outside */
+    useImperativeHandle(ref, () => ({
+      goToPage(page: number) {
+        render(page);
+      },
+    }));
 
-  const render = useCallback(async (pageNum: number) => {
-    if (!pdfRef.current || !canvasRef.current) return;
+    /** Render PDF page */
+    const render = useCallback(
+      async (pageNum: number) => {
+        if (!pdfRef.current || !canvasRef.current) return;
 
-    // 清除之前的渲染任务
-    if (renderTimeoutRef.current) {
-      clearTimeout(renderTimeoutRef.current);
-    }
-
-    renderTimeoutRef.current = setTimeout(async () => {
-      try {
-        const page = await pdfRef.current!.getPage(pageNum);
-        const viewport = page.getViewport({ scale, rotation });
-
-        const canvas = canvasRef.current!;
-        const context = canvas.getContext("2d");
-
-        if (!context || !isMountedRef.current) return;
-
-        // 设置 canvas 尺寸
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        // 清除画布
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (isMountedRef.current) {
-          onPageRender({ width: viewport.width, height: viewport.height });
+        if (renderTimeoutRef.current) {
+          clearTimeout(renderTimeoutRef.current);
         }
 
-        const renderContext = {
-          canvasContext: context,
-          viewport,
-          // 可选：启用文本层支持
-          enableTextLayer: false,
-        };
+        renderTimeoutRef.current = setTimeout(async () => {
+          try {
+            const pdf = pdfRef.current;
+            if (!pdf) return;
 
-        await page.render(renderContext).promise;
-      } catch (error) {
-        if (isMountedRef.current) {
-          console.error('Error rendering PDF page:', error);
-        }
-      }
-    }, 16); // ~60fps 的延迟
-  }, [scale, rotation, onPageRender]);
+            const page = await pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale, rotation });
 
-  // 加载 PDF 文档
-  useEffect(() => {
-    isMountedRef.current = true;
-    const controller = new AbortController();
+            const canvas = canvasRef.current!;
+            const context = canvas.getContext("2d");
 
-    const loadPDF = async () => {
+            if (!context || !isMountedRef.current) return;
+
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            onPageRender({ width: viewport.width, height: viewport.height });
+
+            const renderContext = {
+              canvasContext: context,
+              viewport,
+              canvas: canvasRef.current,
+            };
+
+            await page.render(renderContext).promise;
+          } catch (error) {
+            if (isMountedRef.current) {
+              console.error("Error rendering PDF page:", error);
+            }
+          }
+        }, 16);
+      },
+      [scale, rotation, onPageRender]
+    );
+
+    /** Load PDF with useCallback */
+    const loadPDF = useCallback(async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument({
-          url,
-          signal: controller.signal,
-        });
+        const loadingTask = pdfjsLib.getDocument({ url });
 
         const pdf = await loadingTask.promise;
-
         if (!isMountedRef.current) return;
 
         pdfRef.current = pdf;
 
-        if (isMountedRef.current) {
-          onDocumentLoad(pdf.numPages);
-        }
+        onDocumentLoad(pdf.numPages);
 
-        // 确保页面在有效范围内
         const validPage = Math.min(Math.max(1, pageNumber), pdf.numPages);
-        if (isMountedRef.current) {
-          render(validPage);
-        }
-      } catch (error) {
-        if (isMountedRef.current && !controller.signal.aborted) {
-          console.error('Failed to load PDF:', error);
-        }
+        render(validPage);
+      } catch (err) {
+        console.error("Failed to load PDF:", err);
       }
-    };
+    }, [url, onDocumentLoad, pageNumber, render]);
 
-    loadPDF();
+    /** Load when URL changes */
+    useEffect(() => {
+      isMountedRef.current = true;
+      loadPDF();
 
-    return () => {
-      isMountedRef.current = false;
-      controller.abort();
+      return () => {
+        isMountedRef.current = false;
 
-      // 清理 PDF 实例
-      if (pdfRef.current) {
-        pdfRef.current.destroy();
-        pdfRef.current = null;
-      }
-    };
-  }, [url]);
-
-  // 监听页面、缩放和旋转变化
-  useEffect(() => {
-    if (!pdfRef.current || !isMountedRef.current) return;
-
-    const renderPage = async () => {
-      try {
-        const numPages = pdfRef.current!.numPages;
-        const validPage = Math.min(Math.max(1, pageNumber), numPages);
-
-        if (validPage !== pageNumber && isMountedRef.current) {
-          // 如果页面无效，可以通过回调通知父组件
-          console.warn(`Invalid page number: ${pageNumber}. Valid range: 1-${numPages}`);
+        if (pdfRef.current) {
+          pdfRef.current.destroy();
+          pdfRef.current = null;
         }
+      };
+    }, [loadPDF]);
 
-        if (isMountedRef.current) {
-          await render(validPage);
+    /** Rerender on props changes */
+    useEffect(() => {
+      if (!pdfRef.current) return;
+
+      const numPages = pdfRef.current.numPages;
+      const valid = Math.min(Math.max(1, pageNumber), numPages);
+
+      render(valid);
+    }, [pageNumber, scale, rotation, render]);
+
+    /** Cleanup timeout */
+    useEffect(() => {
+      return () => {
+        if (renderTimeoutRef.current) {
+          clearTimeout(renderTimeoutRef.current);
         }
-      } catch (error) {
-        if (isMountedRef.current) {
-          console.error('Error in page change effect:', error);
-        }
-      }
-    };
+      };
+    }, []);
 
-    renderPage();
-  }, [pageNumber, scale, rotation, render]);
+    return <canvas ref={canvasRef} className="pdf-canvas" />;
+  }
+);
 
-  // 清理定时器
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-
-      if (renderTimeoutRef.current) {
-        clearTimeout(renderTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="pdf-canvas" />;
-});
-
-PdfViewer.displayName = 'PdfViewer';
+PdfViewer.displayName = "PdfViewer";
 
 export default PdfViewer;
